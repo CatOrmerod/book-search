@@ -1,5 +1,5 @@
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
-const { User, Book } = require('../models');
+const { User } = require('../models');
 const { signToken } = require('../utils/auth');
 
 const resolvers = {
@@ -22,7 +22,7 @@ const resolvers = {
             const user = await User.findOne({ email });
 
             if (!user) {
-                throw new AuthenticationError('No user found with this email address');
+                throw new AuthenticationError('Incorrect credentials');
             }
 
             const correctPw = await user.isCorrectPassword(password);
@@ -37,23 +37,23 @@ const resolvers = {
         },
         saveBook: async (parent, { input }, context) => {
             if (context.user) {
-                const book = await User.findOneAndUpdate(
+                const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     { $addToSet: { savedBooks: input } },
-                    { new: true, }
+                    { new: true, runValidators: true}
                 );
-                return book;
+                return updatedUser;
             }
             throw new AuthenticationError('You need to be logged in!');
         },
         removeBook: async (parent, { bookId }, context) => {
             if (context.user) {
-                const book = await User.findOneAndDelete(
+                const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     { $pull: { savedBooks: { bookId: bookId } } },
                     { new: true }
                 );
-                return book;
+                return updatedUser;
             }
             throw new AuthenticationError('You need to be logged in!');
         },
