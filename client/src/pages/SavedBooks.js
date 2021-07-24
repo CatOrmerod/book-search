@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
 
-import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import { useMutation, useQuery } from '@apollo/client';
@@ -21,7 +20,7 @@ const SavedBooks = () => {
     return <div>Loading...</div>;
   }
 
-  if (!user?.username) {
+  if (!userData?.username) {
     return (
       <h4>
         You need to be logged in to see this. Use the navigation links above to
@@ -70,11 +69,11 @@ const SavedBooks = () => {
     try {
       // const response = await deleteBook(bookId, token);
       // use REMOVE_BOOK mutation
-      await deleteBook({ 
+      await removeBook({ 
         variables: { bookId }
       });
 
-      if (!response.ok) {
+      if (error) {
         throw new Error('something went wrong!');
       }
 
@@ -88,7 +87,7 @@ const SavedBooks = () => {
   };
 
   // if data isn't here yet, say so
-  if (!userDataLength) {
+  if (loading) {
     return <h2>LOADING...</h2>;
   }
 
